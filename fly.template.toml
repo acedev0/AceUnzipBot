@@ -1,0 +1,24 @@
+primary_region = "sin"
+kill_signal = "SIGTERM"
+kill_timeout = "30s"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  strategy = "immediate"
+
+[env]
+  DATA_DIR = "/data"
+  WORK_DIR = "/app/work"
+  LOG_LEVEL = "INFO"
+
+[mounts]
+  source = "ace_data"
+  destination = "/data"
+  initial_size = "10gb"
+
+[[vm]]
+  memory = "2gb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If AceUnzipBot helps your work, cite this repository."
+title: "AceUnzipBot"
+type: software
+authors:
+  - family-names: "Ace"
+    email: "Acedevmc@gmail.com"
+version: 2.0.0
+date-released: 2026-08-22
+url: "https://github.com/Aceddev/AceUnzipBot"
+repository-code: "https://github.com/Aceddev/AceUnzipBot"
+license: MIT

@@ -1,0 +1,30 @@
+services:
+  - type: worker
+    name: aceunzipbot
+    runtime: docker
+    plan: starter
+    numInstances: 1
+    maxShutdownDelaySeconds: 300
+    dockerfilePath: ./Dockerfile
+    autoDeployTrigger: commit
+    envVars:
+      - key: API_ID
+        sync: false
+      - key: API_HASH
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: OWNER_ID
+        sync: false
+      - key: LOG_CHANNEL_ID
+        sync: false
+      - key: DATA_DIR
+        value: /app/data
+      - key: WORK_DIR
+        value: /app/work
+      - key: LOG_LEVEL
+        value: INFO
+    disk:
+      name: ace-data
+      mountPath: /app/data
+      sizeGB: 10

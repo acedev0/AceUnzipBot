@@ -1,0 +1,21 @@
+{
+  "name": "AceUnzipBot",
+  "description": "Owner-controlled Telegram archive extraction with FIFO bulk mode and live progress.",
+  "repository": "https://github.com/Aceddev/AceUnzipBot",
+  "logo": "https://raw.githubusercontent.com/Aceddev/AceUnzipBot/main/assets/bot_profile.png",
+  "keywords": ["telegram", "archive", "unzip", "telethon", "bot"],
+  "stack": "container",
+  "env": {
+    "API_ID": {"description": "Telegram API ID from my.telegram.org", "required": true},
+    "API_HASH": {"description": "Telegram API hash from my.telegram.org", "required": true},
+    "BOT_TOKEN": {"description": "Token from @BotFather", "required": true},
+    "OWNER_ID": {"description": "Owner's positive numeric Telegram ID", "required": true},
+    "LOG_CHANNEL_ID": {"description": "Optional negative log channel ID", "required": false},
+    "DATA_DIR": {"value": "/tmp/ace-data", "required": true},
+    "WORK_DIR": {"value": "/tmp/ace-work", "required": true},
+    "LOG_LEVEL": {"value": "INFO", "required": true}
+  },
+  "formation": {
+    "worker": {"quantity": 1, "size": "basic"}
+  }
+}

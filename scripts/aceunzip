@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+if [[ $(id -u) -ne 0 ]]; then
+  if command -v sudo >/dev/null 2>&1; then
+    exec sudo "$0" "$@"
+  fi
+  echo "aceunzip needs root access to update its protected configuration and service." >&2
+  exit 1
+fi
+
+install_record="${ACE_INSTALL_RECORD:-/etc/aceunzip/install.conf}"
+if [[ ! -r "$install_record" ]]; then
+  echo "AceUnzipBot installation record was not found: $install_record" >&2
+  echo "Run the project install.sh first." >&2
+  exit 1
+fi
+
+record_value() {
+  local key="$1"
+  sed -n "s/^${key}=//p" "$install_record" | tail -n 1
+}
+
+project_dir="$(record_value PROJECT_DIR)"
+env_file="$(record_value ENV_FILE)"
+service_name="$(record_value SERVICE_NAME)"
+service_user="$(record_value SERVICE_USER)"
+service_group="$(record_value SERVICE_GROUP)"
+service_group="${service_group:-$(id -gn "$service_user")}"
+python_bin="$project_dir/.venv/bin/python"
+
+for required in "$project_dir" "$env_file" "$python_bin"; do
+  if [[ ! -e "$required" ]]; then
+    echo "Installation component is missing: $required" >&2
+    exit 1
+  fi
+done
+
+usage() {
+  cat <<'EOF'
+AceUnzipBot control centre
+
+Usage:
+  aceunzip                 Re-enter credentials, verify them, and restart
+  aceunzip configure       Same as the command above
+  aceunzip status          Show the systemd service status
+  aceunzip logs            Follow sanitized service logs
+  aceunzip restart         Restart the bot
+  aceunzip doctor          Validate dependencies and active configuration
+  aceunzip update          Fast-forward from GitHub and refresh dependencies
+  aceunzip help            Show this help
+EOF
+}
+
+run_check() {
+  ACE_ENV_FILE="$env_file" "$python_bin" -m acebot --check
+}
+
+configure() {
+  local backup="${env_file}.ace-backup"
+  local data_dir work_dir
+  data_dir="$(sed -n 's/^DATA_DIR=//p' "$env_file" | tail -n 1)"
+  work_dir="$(sed -n 's/^WORK_DIR=//p' "$env_file" | tail -n 1)"
+  cp -p "$env_file" "$backup"
+
+  if ! "$project_dir/scripts/configure.sh" "$env_file" "$data_dir" "$work_dir"; then
+    mv -f "$backup" "$env_file"
+    echo "Configuration was not changed." >&2
+    return 1
+  fi
+  chown "root:$service_group" "$env_file"
+  chmod 0640 "$env_file"
+
+  if ! run_check; then
+    mv -f "$backup" "$env_file"
+    chown "root:$service_group" "$env_file"
+    chmod 0640 "$env_file"
+    echo "Validation failed; the previous configuration was restored." >&2
+    return 1
+  fi
+  if [[ "${ACE_SKIP_TELEGRAM_VERIFY:-0}" != "1" ]] \
+      && ! ACE_ENV_FILE="$env_file" "$python_bin" -m acebot --verify-telegram; then
+    mv -f "$backup" "$env_file"
+    chown "root:$service_group" "$env_file"
+    chmod 0640 "$env_file"
+    echo "Telegram rejected the credentials; the previous configuration was restored." >&2
+    return 1
+  fi
+
+  if ! systemctl stop "$service_name"; then
+    mv -f "$backup" "$env_file"
+    chown "root:$service_group" "$env_file"
+    chmod 0640 "$env_file"
+    echo "Could not stop the service; the previous configuration was restored." >&2
+    return 1
+  fi
+  ACE_ENV_FILE="$env_file" "$python_bin" -m acebot --sync-log-channel
+  data_dir="$(sed -n 's/^DATA_DIR=//p' "$env_file" | tail -n 1)"
+  work_dir="$(sed -n 's/^WORK_DIR=//p' "$env_file" | tail -n 1)"
+  install -d -o "$service_user" -g "$service_group" -m 0700 "$data_dir" "$work_dir"
+  chown -R "$service_user:$service_group" "$data_dir" "$work_dir"
+  if ! systemctl start "$service_name"; then
+    mv -f "$backup" "$env_file"
+    chown "root:$service_group" "$env_file"
+    chmod 0640 "$env_file"
+    ACE_ENV_FILE="$env_file" "$python_bin" -m acebot --sync-log-channel || true
+    systemctl start "$service_name" || true
+    echo "Restart failed; the previous configuration was restored." >&2
+    return 1
+  fi
+  rm -f "$backup"
+  printf '\nCredentials verified and AceUnzipBot restarted.\n'
+  systemctl --no-pager --full status "$service_name" || true
+}
+
+command="${1:-configure}"
+case "$command" in
+  configure|config)
+    configure
+    ;;
+  status)
+    systemctl --no-pager --full status "$service_name"
+    ;;
+  logs)
+    journalctl -u "$service_name" -f --no-hostname
+    ;;
+  restart)
+    systemctl restart "$service_name"
+    systemctl --no-pager --full status "$service_name" || true
+    ;;
+  doctor)
+    run_check
+    ;;
+  update)
+    if [[ ! -d "$project_dir/.git" ]]; then
+      echo "This copy was installed from a ZIP. Download the new release, or reinstall with the one-line GitHub command." >&2
+      exit 2
+    fi
+    if ! git -C "$project_dir" diff --quiet || ! git -C "$project_dir" diff --cached --quiet; then
+      echo "Update stopped because the installed source has local changes." >&2
+      exit 2
+    fi
+    git -C "$project_dir" fetch --prune origin
+    git -C "$project_dir" pull --ff-only
+    "$project_dir/install.sh" --update
+    ;;
+  help|-h|--help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

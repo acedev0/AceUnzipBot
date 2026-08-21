@@ -1,0 +1,44 @@
+name: Bug report
+description: Report a reproducible AceUnzipBot problem without sharing secrets.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Never include API hashes, bot tokens, sessions, passwords, private IDs, or user archives."
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: v2.0.0
+    validations:
+      required: true
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment
+      options: [Ubuntu/Debian installer, Docker Compose, Railway, Fly.io, Render, Replit, Heroku, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Include expected behavior and exact reproduction steps.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Sanitized logs
+      render: shell
+      description: Remove all credentials, private IDs, usernames, filenames, and user content.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed all secrets and private user data.
+          required: true
+        - label: I ran `aceunzip doctor` or the equivalent source check.
+          required: true

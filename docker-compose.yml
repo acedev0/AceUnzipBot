@@ -1,0 +1,22 @@
+services:
+  ace-unzip-bot:
+    build: .
+    container_name: ace-unzip-bot
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ace-data:/app/data
+      - ace-work:/app/work
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    stop_grace_period: 30s
+
+volumes:
+  ace-data:
+  ace-work:
