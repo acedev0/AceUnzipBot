@@ -451,7 +451,11 @@ class AceBot:
             return
         chat_id = int(getattr(event, "chat_id", 0) or 0)
         now = time.monotonic()
-        if not force and chat_id and now - self.peer_registry_seen_at.get(chat_id, 0) < 300:
+        if (
+            not force
+            and chat_id in self.peer_registry_seen_at
+            and now - self.peer_registry_seen_at[chat_id] < 300
+        ):
             return
         try:
             entity = await event.get_chat()

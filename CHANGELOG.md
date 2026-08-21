@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1 — 2026-08-22
+
+- Fixed first-time group/channel discovery during the first five minutes after a fresh VPS or CI
+  runner boot. The peer cache now throttles only IDs that were actually observed previously.
+- Added a deterministic low-uptime regression test and republished the corrected GitHub metadata.
+
 ## 2.0.0 — 2026-08-22
 
 - Added a dual-mode one-line Ubuntu/Debian bootstrap installer designed for `bash <(curl ...)`,

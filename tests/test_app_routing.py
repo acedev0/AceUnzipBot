@@ -84,7 +84,12 @@ class MirrorDiscoveryTests(unittest.IsolatedAsyncioTestCase):
         )
         event = SimpleNamespace(chat_id=channel.id, get_chat=AsyncMock(return_value=channel))
         bot = make_bot()
-        with patch("acebot.app.get_peer_id", return_value=channel.id):
+        # Fresh hosts can have less than five minutes of monotonic uptime. An empty
+        # cache must never interpret that low uptime as a recent observation.
+        with (
+            patch("acebot.app.get_peer_id", return_value=channel.id),
+            patch("acebot.app.time.monotonic", return_value=1.0),
+        ):
             await bot.remember_accessible_chat(event)
             await bot.remember_accessible_chat(event)
         self.assertEqual(
