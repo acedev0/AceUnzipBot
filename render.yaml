@@ -6,7 +6,8 @@ services:
     numInstances: 1
     maxShutdownDelaySeconds: 300
     dockerfilePath: ./Dockerfile
-    autoDeployTrigger: commit
+    # Button-created instances should not redeploy whenever this upstream repository changes.
+    autoDeployTrigger: "off"
     envVars:
       - key: API_ID
         sync: false

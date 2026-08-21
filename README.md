@@ -26,6 +26,27 @@
   <img src="assets/start_banner.png" alt="AceUnzipBot Telegram welcome artwork">
 </p>
 
+## Deploy in a few clicks
+
+<p align="center">
+  <a href="https://render.com/deploy?repo=https://github.com/acedev0/AceUnzipBot"><img src="https://render.com/images/deploy-to-render-button.svg" alt="Deploy to Render"></a>
+  <a href="https://www.heroku.com/deploy?template=https://github.com/acedev0/AceUnzipBot"><img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy to Heroku"></a>
+  <a href="https://replit.com/github.com/acedev0/AceUnzipBot"><img src="https://img.shields.io/badge/Open_in-Replit-F26207?logo=replit&amp;logoColor=white" alt="Open in Replit"></a>
+</p>
+
+<p align="center">
+  <a href="https://railway.com/new"><img src="https://img.shields.io/badge/Import_to-Railway-0B0D0E?logo=railway&amp;logoColor=white" alt="Import to Railway"></a>
+  <a href="https://fly.io/speedrun/"><img src="https://img.shields.io/badge/Launch_on-Fly.io-7B3FF2?logo=flydotio&amp;logoColor=white" alt="Launch on Fly.io"></a>
+  <a href="docs/DEPLOYMENT.md#docker--docker-compose"><img src="https://img.shields.io/badge/Run_with-Docker-2496ED?logo=docker&amp;logoColor=white" alt="Run with Docker"></a>
+</p>
+
+Render and Heroku use the manifests already bundled in this repository. Replit opens its direct
+GitHub import flow. Railway and Fly.io open guided setup because Railway requires a separately
+published platform template for a true one-click URL and Fly.io requires a one-time persistent
+volume. Deployment buttons never contain Telegram credentials: enter `API_ID`, `API_HASH`,
+`BOT_TOKEN`, `OWNER_ID`, and optional `LOG_CHANNEL_ID` in the provider's secret/environment panel.
+Use exactly one replica and persistent storage; see the [deployment guide](docs/DEPLOYMENT.md).
+
 ## Install on an Ubuntu VPS
 
 Run one command on Ubuntu or Debian:
