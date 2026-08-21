@@ -4,5 +4,5 @@ cryptg==0.6.0; python_version >= "3.11"
 uvloop==0.22.1
 Pillow==11.3.0
 psutil==7.0.0
-python-dotenv==1.1.1
+python-dotenv==1.2.3
 hachoir==3.3.0
