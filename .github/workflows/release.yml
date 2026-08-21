@@ -11,7 +11,7 @@ jobs:
   package:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build clean release archive
         run: |
           archive="AceUnzipBot-${GITHUB_REF_NAME}.zip"
