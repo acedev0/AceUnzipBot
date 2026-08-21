@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security report
-    url: https://github.com/Aceddev/AceUnzipBot/security/advisories/new
+    url: https://github.com/acedev0/AceUnzipBot/security/advisories/new
     about: Report vulnerabilities privately; never open a public exploit report.
   - name: Telegram contact
     url: https://t.me/Aceddev

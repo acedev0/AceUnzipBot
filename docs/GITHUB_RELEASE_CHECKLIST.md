@@ -4,7 +4,7 @@ Use this once for the first public release.
 
 ## Repository settings
 
-- Repository: `Aceddev/AceUnzipBot` with default branch `main`.
+- Repository: `acedev0/AceUnzipBot` with default branch `main`.
 - Description: `Fast, secure Telegram archive extraction with FIFO bulk mode, live progress,
   thumbnails, owner controls, and one-command VPS deployment.`
 - Website: `https://t.me/Aceddev`
@@ -31,6 +31,6 @@ Use this once for the first public release.
 6. Confirm the release workflow attaches `AceUnzipBot-v2.0.0.zip` and its SHA-256 file.
 7. Test the public raw installer URL from the README.
 
-If the GitHub username or repository name differs, update every `Aceddev/AceUnzipBot` URL before
+If the GitHub username or repository name differs, update every `acedev0/AceUnzipBot` URL before
 publishing so badges, release links, the installer, security advisory link, and deployment buttons
 all point to the exact repository.

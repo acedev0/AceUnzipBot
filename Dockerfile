@@ -2,7 +2,7 @@ FROM python:3.12-slim-bookworm
 
 LABEL org.opencontainers.image.title="AceUnzipBot" \
       org.opencontainers.image.description="Secure owner-controlled Telegram archive extractor" \
-      org.opencontainers.image.source="https://github.com/Aceddev/AceUnzipBot" \
+      org.opencontainers.image.source="https://github.com/acedev0/AceUnzipBot" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.authors="Ace <Acedevmc@gmail.com>"
 

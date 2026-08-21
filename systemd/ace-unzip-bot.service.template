@@ -1,6 +1,6 @@
 [Unit]
 Description=AceUnzipBot Telegram archive worker
-Documentation=https://github.com/Aceddev/AceUnzipBot
+Documentation=https://github.com/acedev0/AceUnzipBot
 After=network-online.target
 Wants=network-online.target
 

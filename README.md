@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Aceddev/AceUnzipBot/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/Aceddev/AceUnzipBot/ci.yml?branch=main&label=tests"></a>
-  <a href="https://github.com/Aceddev/AceUnzipBot/releases"><img alt="Release" src="https://img.shields.io/github/v/release/Aceddev/AceUnzipBot?display_name=tag"></a>
+  <a href="https://github.com/acedev0/AceUnzipBot/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/acedev0/AceUnzipBot/ci.yml?branch=main&label=tests"></a>
+  <a href="https://github.com/acedev0/AceUnzipBot/releases"><img alt="Release" src="https://img.shields.io/github/v/release/acedev0/AceUnzipBot?display_name=tag"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white">
   <img alt="Telethon" src="https://img.shields.io/badge/Telethon-1.44-2AABEE?logo=telegram&logoColor=white">
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-green"></a>
@@ -31,7 +31,7 @@
 Run one command on Ubuntu or Debian:
 
 ```bash
-bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/Aceddev/AceUnzipBot/main/install.sh)
+bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh)
 ```
 
 The terminal wizard asks for:
@@ -50,7 +50,7 @@ stops archive processing.
 Want to inspect the installer first?
 
 ```bash
-curl -fLsS https://raw.githubusercontent.com/Aceddev/AceUnzipBot/main/install.sh | less
+curl -fLsS https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh | less
 ```
 
 ### Reconfigure after installation

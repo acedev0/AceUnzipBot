@@ -18,10 +18,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Aceddev/AceUnzipBot"
-Documentation = "https://github.com/Aceddev/AceUnzipBot/tree/main/docs"
-Issues = "https://github.com/Aceddev/AceUnzipBot/issues"
-Source = "https://github.com/Aceddev/AceUnzipBot"
+Homepage = "https://github.com/acedev0/AceUnzipBot"
+Documentation = "https://github.com/acedev0/AceUnzipBot/tree/main/docs"
+Issues = "https://github.com/acedev0/AceUnzipBot/issues"
+Source = "https://github.com/acedev0/AceUnzipBot"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-repo_url="${ACE_REPO_URL:-https://github.com/Aceddev/AceUnzipBot.git}"
+repo_url="${ACE_REPO_URL:-https://github.com/acedev0/AceUnzipBot.git}"
 repo_branch="${ACE_BRANCH:-main}"
 install_dir="${ACE_INSTALL_DIR:-/opt/aceunzipbot}"
 

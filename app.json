@@ -1,8 +1,8 @@
 {
   "name": "AceUnzipBot",
   "description": "Owner-controlled Telegram archive extraction with FIFO bulk mode and live progress.",
-  "repository": "https://github.com/Aceddev/AceUnzipBot",
-  "logo": "https://raw.githubusercontent.com/Aceddev/AceUnzipBot/main/assets/bot_profile.png",
+  "repository": "https://github.com/acedev0/AceUnzipBot",
+  "logo": "https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/assets/bot_profile.png",
   "keywords": ["telegram", "archive", "unzip", "telethon", "bot"],
   "stack": "container",
   "env": {

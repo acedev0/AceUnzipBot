@@ -27,7 +27,7 @@ Recommended baseline: Ubuntu 22.04/24.04 or current Debian, two CPU threads, 2 G
 incoming archive and upload staging space.
 
 ```bash
-bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/Aceddev/AceUnzipBot/main/install.sh)
+bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh)
 ```
 
 No inbound port is required. The bot makes outbound connections to Telegram and package mirrors.

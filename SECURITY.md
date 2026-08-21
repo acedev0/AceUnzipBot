@@ -61,7 +61,7 @@ No archive extractor can make an undersized VPS invulnerable to every malformed-
 
 ## Reporting
 
-Use a [private GitHub security advisory](https://github.com/Aceddev/AceUnzipBot/security/advisories/new)
+Use a [private GitHub security advisory](https://github.com/acedev0/AceUnzipBot/security/advisories/new)
 or contact Ace at [Acedevmc@gmail.com](mailto:Acedevmc@gmail.com). Telegram
 [@Aceddev](https://t.me/Aceddev) may be used to alert the maintainer, but do not send a working
 exploit, token, session, password, or private user data in an ordinary chat.
