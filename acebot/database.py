@@ -8,20 +8,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+LEGACY_WELCOME_TEXT = (
+    "Drop an archive here and I’ll securely unpack it, inspect it, and return every file "
+    "with live download, extraction, and upload progress."
+)
+LEGACY_HELP_TEXT = (
+    "Send a ZIP, RAR, 7Z, TAR, GZ, BZ2, XZ, ZST, or ISO archive as a document. "
+    "For a protected archive, use its caption `password: your-password` or reply with "
+    "/password when asked."
+)
+
 DEFAULT_SETTINGS: dict[str, str] = {
     "access_mode": "owner",
     "maintenance": "0",
     "log_events": "1",
     "log_archives": "1",
-    "welcome_text": (
-        "Drop an archive here and I’ll securely unpack it, inspect it, and return every file "
-        "with live download, extraction, and upload progress."
-    ),
-    "help_text": (
-        "Send a ZIP, RAR, 7Z, TAR, GZ, BZ2, XZ, ZST, or ISO archive as a document. "
-        "For a protected archive, use its caption `password: your-password` or reply with "
-        "/password when asked."
-    ),
+    "welcome_text": "Send an archive; I’ll safely unpack and return its files.",
+    "help_text": "Send ZIP, RAR, 7Z, TAR, GZ, XZ, ZST, or ISO as a document.",
     "completion_caption": "Extracted by {bot} • {index}/{total}",
     "max_archive_mb": "1900",
     "max_extracted_mb": "6000",
@@ -116,6 +119,9 @@ class Database:
         defaults_migrated = self._connection.execute(
             "SELECT value FROM settings WHERE key='defaults_v12_migrated'"
         ).fetchone()
+        compact_ui_migrated = self._connection.execute(
+            "SELECT value FROM settings WHERE key='defaults_v21_compact_ui'"
+        ).fetchone()
         now = utc_now()
         self._connection.executemany(
             "INSERT OR IGNORE INTO settings(key, value, updated_at) VALUES (?, ?, ?)",
@@ -143,6 +149,21 @@ class Database:
             self._connection.execute(
                 "INSERT INTO settings(key, value, updated_at) VALUES "
                 "('defaults_v12_migrated', '1', ?)",
+                (now,),
+            )
+        if compact_ui_migrated is None:
+            # Replace only untouched legacy copy. Owner-customized welcome/help text is preserved.
+            self._connection.execute(
+                "UPDATE settings SET value=?, updated_at=? WHERE key='welcome_text' AND value=?",
+                (DEFAULT_SETTINGS["welcome_text"], now, LEGACY_WELCOME_TEXT),
+            )
+            self._connection.execute(
+                "UPDATE settings SET value=?, updated_at=? WHERE key='help_text' AND value=?",
+                (DEFAULT_SETTINGS["help_text"], now, LEGACY_HELP_TEXT),
+            )
+            self._connection.execute(
+                "INSERT INTO settings(key, value, updated_at) VALUES "
+                "('defaults_v21_compact_ui', '1', ?)",
                 (now,),
             )
         self._connection.execute(

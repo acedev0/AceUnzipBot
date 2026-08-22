@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from acebot.database import Database
+from acebot.database import DEFAULT_SETTINGS, LEGACY_HELP_TEXT, LEGACY_WELCOME_TEXT, Database
 
 
 class DatabaseTests(unittest.IsolatedAsyncioTestCase):
@@ -71,6 +71,45 @@ class DatabaseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(await legacy.get_setting("access_mode"), "public")
         self.assertEqual(await legacy.get_setting("max_concurrent_jobs"), "2")
         await legacy.close()
+
+    async def test_v21_compact_copy_migrates_defaults_but_preserves_custom_text(self) -> None:
+        legacy_path = Path(self.temp.name) / "legacy-ui.sqlite3"
+        connection = sqlite3.connect(legacy_path)
+        connection.execute(
+            "CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, "
+            "updated_at TEXT NOT NULL)"
+        )
+        connection.executemany(
+            "INSERT INTO settings(key, value, updated_at) VALUES (?, ?, 'old')",
+            [("welcome_text", LEGACY_WELCOME_TEXT), ("help_text", "Owner custom help")],
+        )
+        connection.commit()
+        connection.close()
+
+        legacy = Database(legacy_path)
+        await legacy.open()
+        self.assertEqual(
+            await legacy.get_setting("welcome_text"), DEFAULT_SETTINGS["welcome_text"]
+        )
+        self.assertEqual(await legacy.get_setting("help_text"), "Owner custom help")
+        await legacy.close()
+
+        second_path = Path(self.temp.name) / "legacy-help.sqlite3"
+        connection = sqlite3.connect(second_path)
+        connection.execute(
+            "CREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, "
+            "updated_at TEXT NOT NULL)"
+        )
+        connection.execute(
+            "INSERT INTO settings(key, value, updated_at) VALUES ('help_text', ?, 'old')",
+            (LEGACY_HELP_TEXT,),
+        )
+        connection.commit()
+        connection.close()
+        second = Database(second_path)
+        await second.open()
+        self.assertEqual(await second.get_setting("help_text"), DEFAULT_SETTINGS["help_text"])
+        await second.close()
 
     async def test_user_flags_and_preferences(self) -> None:
         await self.db.upsert_user(42, "ace", "Ace")

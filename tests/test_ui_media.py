@@ -26,6 +26,8 @@ from acebot.ui import (
     owner_delivery_buttons,
     progress_bar,
     render_caption,
+    render_help,
+    render_privacy,
     render_video_caption,
     render_welcome,
     user_settings_buttons,
@@ -37,6 +39,20 @@ class UiTests(unittest.TestCase):
     def test_start_caption_stays_within_telegram_media_limit(self) -> None:
         caption = render_welcome("Max", "Ace Extractor", "x" * 300, archives_logged=True)
         self.assertLessEqual(len(caption), 1024)
+
+    def test_primary_ui_copy_is_compact_and_bullet_based(self) -> None:
+        welcome = render_welcome("Ace", "Ace Extractor", "Send a file.", archives_logged=False)
+        help_text = render_help("Send supported archives.")
+        privacy = render_privacy(
+            archives_logged=False,
+            cleanup_minutes=15,
+            logging_configured=False,
+        )
+        self.assertIn("• Flow:", welcome)
+        self.assertIn("• Single:", help_text)
+        self.assertIn("• Cleanup:", privacy)
+        self.assertNotIn("Three-stage turbo flow", welcome)
+        self.assertLessEqual(welcome.count("\n"), 12)
 
     def test_caption_template_is_validated_and_escaped(self) -> None:
         self.assertTrue(validate_caption_template("{name} • {index}/{total}")[0])
@@ -174,6 +190,8 @@ class ProgressTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(progress_bar(50, 100), message.text)
         self.assertNotIn("ACE LIVE TASK", message.text)
         self.assertIn("<b>UPLOAD</b>", message.text)
+        self.assertIn("• File:", message.text)
+        self.assertIn("• ETA:", message.text)
 
     async def test_completion_reports_skipped_empty_files_without_failure(self) -> None:
         class FakeMessage:

@@ -49,11 +49,19 @@ Use exactly one replica and persistent storage; see the [deployment guide](docs/
 
 ## Install on an Ubuntu VPS
 
-Run one command on Ubuntu or Debian:
+Install the stable `v2.1.0` release on Ubuntu or Debian:
 
 ```bash
-bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh)
+bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh) v2.1.0
 ```
+
+Install an older release by changing only the final version, for example `v2.0.1`:
+
+```bash
+bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh) v2.0.1
+```
+
+Tagged ZIP files and checksums remain available on the [GitHub Releases page](https://github.com/acedev0/AceUnzipBot/releases).
 
 The terminal wizard asks for:
 
@@ -91,7 +99,13 @@ aceunzip status      service status
 aceunzip logs        follow logs
 aceunzip restart     restart safely
 aceunzip doctor      validate dependencies/configuration
-aceunzip update      fast-forward a Git installation
+aceunzip update v2.1.0  install an exact release
+```
+
+Update an existing VPS directly:
+
+```bash
+aceunzip update v2.1.0
 ```
 
 See [CLI reference](docs/CLI.md) and [VPS deployment details](docs/DEPLOYMENT.md#ubuntu--debian-vps).
@@ -100,8 +114,8 @@ See [CLI reference](docs/CLI.md) and [VPS deployment details](docs/DEPLOYMENT.md
 
 - **Focused scope:** archive extraction and Telegram delivery, without torrents, remote shell,
   `/eval`, cloud-drive credentials, or unrelated downloaders.
-- **Business-class Telegram UI:** compact phone-width cards, 12-cell progress bars, speed, ETA,
-  elapsed time, current file, and cancel controls.
+- **Minimal Telegram UI:** short bullet-style cards, 12-cell progress bars, speed, ETA, elapsed
+  time, current file, and cancel controls.
 - **One bottom-anchored progress card:** after each delivered file, the status is moved below it;
   bulk collection and queueing use aggregate updates instead of flooding the chat.
 - **Every extracted file attempted:** valid photos/videos use Telegram media previews; everything

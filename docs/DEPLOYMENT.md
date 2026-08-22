@@ -27,8 +27,11 @@ Recommended baseline: Ubuntu 22.04/24.04 or current Debian, two CPU threads, 2 G
 incoming archive and upload staging space.
 
 ```bash
-bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh)
+bash <(curl -fLsS --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/acedev0/AceUnzipBot/main/install.sh) v2.1.0
 ```
+
+The last argument pins the source tag. Replace it with an available release such as `v2.0.1` to
+install that historical version. Use `main` only when intentionally testing unreleased changes.
 
 No inbound port is required. The bot makes outbound connections to Telegram and package mirrors.
 The installer creates an unprivileged service account, protected credential file, virtual
@@ -37,7 +40,7 @@ environment, hardened systemd unit, and `aceunzip` control command.
 ```bash
 aceunzip status
 aceunzip logs
-aceunzip update
+aceunzip update v2.1.0
 ```
 
 To install from a release ZIP instead, extract it, run `chmod +x install.sh setup.sh run.sh

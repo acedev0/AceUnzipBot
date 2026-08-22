@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.1.0 — 2026-08-22
+
+- Fixed `aceunzip` reconfiguration and diagnostics from `/root` or any other working directory;
+  validation now always runs from the installed source tree before touching the live service.
+- Added version-pinned bootstrap and update commands. `v2.1.0`, `v2.0.1`, and future semantic
+  release tags can be selected without changing repository files or losing protected settings.
+- Reworked the main Telegram interface into shorter bullet-style welcome, help, privacy, bulk,
+  owner, settings, progress, FloodWait, completion, and failure cards.
+- Migrated untouched legacy welcome/help defaults to compact copy while preserving every
+  owner-customized value.
+- Added shell-level regressions for arbitrary-directory CLI execution and exact historical-tag
+  selection, plus compact UI and settings-migration coverage.
+
 ## 2.0.1 — 2026-08-22
 
 - Fixed first-time group/channel discovery during the first five minutes after a fresh VPS or CI

@@ -175,13 +175,13 @@ class ProgressReporter:
                 f"<code>{pipeline}</code>\n\n"
                 f"<code>{progress_bar(current, total, width=PROGRESS_WIDTH)}</code>  "
                 f"<b>{percent:5.1f}%</b>\n"
-                f"📦 <code>{esc(compact_text(self.filename))}</code>\n"
-                f"↳ {human_size(current)} / {human_size(total)}\n"
-                f"⚡ {human_size(self.smoothed_speed)}/s   ETA {human_duration(eta)}\n"
-                f"⏱ {human_duration(now - self.started_at)} elapsed"
+                f"• File: <code>{esc(compact_text(self.filename))}</code>\n"
+                f"• Data: {human_size(current)} / {human_size(total)}\n"
+                f"• Speed: {human_size(self.smoothed_speed)}/s\n"
+                f"• ETA: {human_duration(eta)} • Time: {human_duration(now - self.started_at)}"
             )
             if detail:
-                text += f"\n<blockquote>{esc(compact_text(detail, 96))}</blockquote>"
+                text += f"\n• Now: {esc(compact_text(detail, 72))}"
             buttons = [[Button.inline("✖ Cancel", f"job:cancel:{self.job_id}".encode())]]
             self.last_text = text
             self.last_buttons = buttons
@@ -240,11 +240,11 @@ class ProgressReporter:
             remaining = max(0, int(math.ceil(deadline - time.monotonic())))
             text = (
                 "⏸ <b>TELEGRAM FLOODWAIT</b>\n"
-                f"📦 <code>{esc(compact_text(self.filename))}</code>\n\n"
+                f"• File: <code>{esc(compact_text(self.filename))}</code>\n\n"
                 f"<code>{progress_bar(wait_seconds - remaining, max(wait_seconds, 1), width=PROGRESS_WIDTH)}</code>  "
                 f"<b>Retrying in {human_duration(remaining)}</b>\n"
-                f"<blockquote>{esc(compact_text(action, 96))}</blockquote>\n"
-                "<i>Queue position is safe. Retrying automatically.</i>"
+                f"• Action: {esc(compact_text(action, 72))}\n"
+                "• Queue: saved • retry: automatic"
             )
             async with self._lock:
                 self.last_text = text
@@ -289,9 +289,9 @@ class ProgressReporter:
             return
         text = (
             f"⏳ <b>QUEUED</b>  <code>#{max(1, position)}</code>\n\n"
-            f"📦 <code>{esc(compact_text(self.filename))}</code>\n"
-            f"🆔 <code>{self.job_id}</code>\n\n"
-            "<i>Your archives run one at a time in arrival order. You can keep sending files.</i>"
+            f"• File: <code>{esc(compact_text(self.filename))}</code>\n"
+            f"• Job: <code>{self.job_id}</code>\n"
+            "• Order: FIFO • more files accepted"
         )
         buttons = [[Button.inline("✖ Cancel", f"job:cancel:{self.job_id}".encode())]]
         async with self._lock:
@@ -320,14 +320,14 @@ class ProgressReporter:
         title = "DELIVERY COMPLETE" if not warning_lines else "DELIVERY COMPLETE WITH NOTES"
         text = (
             f"✅ <b>{title}</b>\n\n"
-            f"📦 <code>{esc(compact_text(self.filename))}</code>\n"
-            f"📁 {file_count} file{'s' if file_count != 1 else ''} sent\n"
-            f"📤 {human_size(output_size)} delivered\n"
-            f"⏱ {human_duration(elapsed)} total"
+            f"• File: <code>{esc(compact_text(self.filename))}</code>\n"
+            f"• Sent: {file_count} file{'s' if file_count != 1 else ''}\n"
+            f"• Size: {human_size(output_size)}\n"
+            f"• Time: {human_duration(elapsed)}"
         )
         if warning_lines:
             text += "\n\n" + "\n".join(warning_lines)
-        text += "\n\n<i>Temporary server files cleaned.</i>"
+        text += "\n• Cleanup: done"
         async with self._lock:
             self.last_text = text
             self.last_buttons = None
@@ -337,9 +337,9 @@ class ProgressReporter:
     async def failed(self, public_message: str) -> None:
         text = (
             "❌ <b>JOB STOPPED</b>\n\n"
-            f"📦 <code>{esc(compact_text(self.filename))}</code>\n"
-            f"{esc(public_message)}\n\n"
-            "<i>Temporary server files cleaned.</i>"
+            f"• File: <code>{esc(compact_text(self.filename))}</code>\n"
+            f"• Reason: {esc(public_message)}\n"
+            "• Cleanup: done"
         )
         async with self._lock:
             self.last_text = text

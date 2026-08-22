@@ -27,7 +27,7 @@ Use this once for the first public release.
 2. Push the reviewed source to `main`.
 3. Verify both Actions workflows pass.
 4. Run the one-line installer against a clean Ubuntu VPS.
-5. Create and push the intended semantic-version tag, for example `v2.0.1`.
+5. Create and push the intended semantic-version tag, for example `v2.1.0`.
 6. Confirm the release workflow attaches the versioned ZIP and its SHA-256 file.
 7. Test the public raw installer URL from the README.
 

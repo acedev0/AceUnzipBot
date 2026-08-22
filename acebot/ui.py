@@ -17,9 +17,9 @@ CONTACT_EMAIL = "Acedevmc@gmail.com"
 MIRROR_DESTINATIONS_PER_PAGE = 8
 
 FOOTER = (
-    "\n\n<blockquote>⚡ <b>Made by Ace</b>  •  "
-    '<a href="https://t.me/Aceddev">@Aceddev</a>\n'
-    "✉️ Acedevmc@gmail.com</blockquote>"
+    "\n\n<blockquote><b>Made by Ace</b> • "
+    '<a href="https://t.me/Aceddev">@Aceddev</a> • '
+    "Acedevmc@gmail.com</blockquote>"
 )
 
 
@@ -64,55 +64,37 @@ def render_welcome(
     archives_logged: bool,
 ) -> str:
     privacy = (
-        "Uploaded archives may be copied to the owner’s private log channel for security and "
-        "abuse review."
+        "private archive logging is enabled"
         if archives_logged
-        else "Uploaded files remain temporary on this server and are deleted after processing."
+        else "temporary files are cleaned after processing"
     )
     return (
         f"⚡ <b>{esc(bot_name.upper())}</b>\n"
-        f"Welcome, <b>{esc(first_name or 'there')}</b>.\n\n"
-        f"{esc(custom_text)}\n\n"
-        "<b>Three-stage turbo flow</b>\n"
-        "<code>DOWNLOAD  →  EXTRACT  →  UPLOAD</code>\n\n"
-        "📦 ZIP • RAR • 7Z • TAR • GZ • XZ • ZST • ISO\n"
-        "📄 Every non-empty extracted file is returned\n"
-        "🎬 Verified media gets previews; everything else is a document\n"
-        "♾ FIFO queue • <code>/bulk</code> → send everything → <code>/donebulk</code>\n"
-        "🔐 Password archives + zip-bomb and path-traversal protection\n"
-        "🧹 Automatic cleanup + instant cancel button\n\n"
-        f"<i>Privacy notice: {esc(privacy)}</i>" + FOOTER
+        f"👋 <b>{esc(first_name or 'there')}</b>\n\n"
+        f"• {esc(custom_text)}\n"
+        "• Flow: <code>DOWNLOAD → EXTRACT → UPLOAD</code>\n"
+        "• Formats: ZIP • RAR • 7Z • TAR • GZ • XZ • ZST • ISO\n"
+        "• Output: every non-empty file\n"
+        "• Bulk: <code>/bulk</code> → files → <code>/donebulk</code>\n"
+        "• Safety: passwords • bomb checks • instant cancel\n"
+        f"• Privacy: {esc(privacy)}" + FOOTER
     )
 
 
 def render_help(custom_text: str) -> str:
     return (
-        "🧭 <b>HOW TO USE ACE EXTRACTOR</b>\n\n"
-        f"{esc(custom_text)}\n\n"
-        "<b>Single archives</b>\n"
-        "1. Send the archive as a Telegram <b>document</b>.\n"
-        "2. Send more archives whenever you like; they enter your FIFO queue.\n"
-        "3. Keep this chat open to watch the live stages.\n"
-        "4. Receive every non-empty extracted file. Supported photos/videos are media; all "
-        "other file types are documents. Zero-byte placeholders are skipped without stopping "
-        "the archive.\n\n"
-        "<b>Bulk mode</b>\n"
-        "1. Send <code>/bulk</code>.\n"
-        "2. Forward or upload every document you want checked.\n"
-        "3. Send <code>/donebulk</code>. The bot lists every supported archive in FIFO order "
-        "and flags unsupported or oversized documents as ignored.\n"
-        "4. One aggregate card confirms the entire queue; each archive gets a live card only "
-        "when its worker starts.\n"
-        "5. Use <code>/cancelbulk</code> to discard an unfinished collection.\n\n"
-        "<b>Password-protected archive</b>\n"
-        "Add <code>password: your-password</code> in the archive caption. If you forget, "
-        "the bot will ask; answer with <code>/password your-password</code>. Passwords are "
-        "never saved to the database or log channel.\n\n"
+        "🧭 <b>QUICK GUIDE</b>\n\n"
+        f"• {esc(custom_text)}\n"
+        "• Single: send an archive as a <b>document</b>\n"
+        "• Queue: send more files; FIFO handles them one by one\n"
+        "• Bulk: <code>/bulk</code> → files → <code>/donebulk</code>\n"
+        "• Password: caption <code>password: value</code> or <code>/password value</code>\n"
+        "• Output: media when verified; otherwise document\n"
+        "• Zero-byte files: skipped without stopping the job\n\n"
         "<b>Commands</b>\n"
-        "<code>/start</code> home  •  <code>/settings</code> preferences\n"
-        "<code>/bulk</code> collect files  •  <code>/donebulk</code> validate + queue\n"
-        "<code>/cancel</code> stop your task  •  <code>/myid</code> show your ID\n"
-        "<code>/privacy</code> retention/logging details" + FOOTER
+        "• <code>/start</code> • <code>/settings</code> • <code>/privacy</code>\n"
+        "• <code>/bulk</code> • <code>/donebulk</code> • <code>/cancelbulk</code>\n"
+        "• <code>/cancel</code> • <code>/myid</code>" + FOOTER
     )
 
 
@@ -120,25 +102,18 @@ def render_privacy(
     *, archives_logged: bool, cleanup_minutes: int, logging_configured: bool = True
 ) -> str:
     if archives_logged:
-        logging_line = (
-            "The owner has enabled private-channel archive copies. Your original archive and "
-            "basic account identifiers may be retained in that channel."
-        )
+        logging_line = "Archive copies and basic IDs may be retained in the private log channel."
     elif logging_configured:
-        logging_line = (
-            "Original archives are not copied to the log channel. Operational metadata may be logged."
-        )
+        logging_line = "Archive copies are off; operational metadata may be logged."
     else:
-        logging_line = "No private log channel is active, so files and events are not sent to one."
+        logging_line = "No private log channel is active."
     return (
-        "🔐 <b>PRIVACY & RETENTION</b>\n\n"
-        f"• {esc(logging_line)}\n"
-        f"• Working copies are deleted after each task; stale folders are swept after about "
-        f"{cleanup_minutes} minutes.\n"
-        "• Archive passwords are held only in memory while a queued task waits and runs.\n"
-        "• The bot records user ID, username, file name/size, outcome, and transfer totals.\n"
-        "• Do not upload content you do not have the right to process.\n\n"
-        "The bot owner can disable archive copies from <code>/admin → Logs</code>." + FOOTER
+        "🔐 <b>PRIVACY</b>\n\n"
+        f"• Logs: {esc(logging_line)}\n"
+        f"• Cleanup: working files + stale folders (~{cleanup_minutes} min)\n"
+        "• Passwords: memory only\n"
+        "• Records: IDs, names, sizes, results, transfer totals\n"
+        "• Control: <code>/admin → Logs</code>" + FOOTER
     )
 
 
@@ -152,7 +127,7 @@ def home_buttons(*, owner: bool = False) -> list[list[Button]]:
         [Button.inline("🔐 Privacy", b"home:privacy"), Button.inline("🆔 My ID", b"home:myid")],
     ]
     if owner:
-        rows.append([Button.inline("👑 Owner control centre", b"admin:home")])
+        rows.append([Button.inline("👑 Owner menu", b"admin:home")])
     return rows
 
 
@@ -164,11 +139,10 @@ def render_bulk_summary(
 ) -> tuple[str, ...]:
     """Render every bulk filename across Telegram-safe HTML message pages."""
     heading = (
-        "📚 <b>BULK VALIDATION COMPLETE</b>\n\n"
-        f"✅ Supported: <b>{len(accepted)}</b>\n"
-        f"⚠️ Ignored: <b>{len(rejected)}</b>\n\n"
-        "<i>This is a filename/size pre-check. 7-Zip verifies each accepted file’s "
-        "contents when its FIFO turn begins.</i>"
+        "📚 <b>BULK CHECK</b>\n\n"
+        f"• Supported: <b>{len(accepted)}</b>\n"
+        f"• Ignored: <b>{len(rejected)}</b>\n"
+        "• Order: FIFO • content check at worker start"
     )
     lines: list[str] = []
     if accepted:
@@ -188,7 +162,7 @@ def render_bulk_summary(
 
     pages: list[str] = []
     current = heading
-    continuation = "📚 <b>BULK VALIDATION • CONTINUED</b>"
+    continuation = "📚 <b>BULK CHECK • CONTINUED</b>"
     for line in lines:
         candidate = current + "\n" + line
         if len(candidate + FOOTER) > max_length and current != heading:
@@ -201,7 +175,7 @@ def render_bulk_summary(
 
 
 def back_home_button() -> list[list[Button]]:
-    return [[Button.inline("‹ Back home", b"home:start")]]
+    return [[Button.inline("‹ Home", b"home:start")]]
 
 
 def user_settings_buttons(mode: str, has_thumb: bool, has_caption: bool) -> list[list[Button]]:

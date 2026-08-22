@@ -36,6 +36,22 @@ for required in "$project_dir" "$env_file" "$python_bin"; do
   fi
 done
 
+# The source tree is intentionally not installed as a wheel. Always run Python from the project
+# root so `python -m acebot` works when this command is launched from /root or any other directory.
+cd "$project_dir"
+
+normalize_version() {
+  local value="${1:-main}"
+  if [[ "$value" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    value="v$value"
+  fi
+  if [[ "$value" != "main" && ! "$value" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Version must be main or a release such as v2.1.0." >&2
+    return 1
+  fi
+  printf '%s\n' "$value"
+}
+
 usage() {
   cat <<'EOF'
 AceUnzipBot control centre
@@ -47,7 +63,7 @@ Usage:
   aceunzip logs            Follow sanitized service logs
   aceunzip restart         Restart the bot
   aceunzip doctor          Validate dependencies and active configuration
-  aceunzip update          Fast-forward from GitHub and refresh dependencies
+  aceunzip update [VERSION]  Install main or an exact release such as v2.1.0
   aceunzip help            Show this help
 EOF
 }
@@ -140,9 +156,22 @@ case "$command" in
       echo "Update stopped because the installed source has local changes." >&2
       exit 2
     fi
-    git -C "$project_dir" fetch --prune origin
-    git -C "$project_dir" pull --ff-only
-    "$project_dir/install.sh" --update
+    target_ref="$(normalize_version "${2:-main}")"
+    if [[ "$target_ref" == "main" ]]; then
+      git -C "$project_dir" fetch --prune --depth 1 origin \
+        refs/heads/main:refs/remotes/origin/main
+      if git -C "$project_dir" show-ref --verify --quiet refs/heads/main; then
+        git -C "$project_dir" checkout main
+        git -C "$project_dir" merge --ff-only refs/remotes/origin/main
+      else
+        git -C "$project_dir" checkout -b main --track origin/main
+      fi
+    else
+      git -C "$project_dir" fetch --force --depth 1 origin \
+        "refs/tags/$target_ref:refs/tags/$target_ref"
+      git -C "$project_dir" checkout --detach "refs/tags/$target_ref"
+    fi
+    ACE_VERSION="$target_ref" "$project_dir/install.sh" --update
     ;;
   help|-h|--help)
     usage

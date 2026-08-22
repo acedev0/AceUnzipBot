@@ -37,15 +37,22 @@ aceunzip status
 aceunzip logs
 aceunzip restart
 aceunzip doctor
-aceunzip update
+aceunzip update v2.1.0
 ```
 
 - `status` shows the full systemd status without paging.
 - `logs` follows the journal. Bot secrets and archive passwords are never intentionally logged.
 - `restart` restarts the process and prints its status.
 - `doctor` validates active configuration, FFmpeg, 7-Zip, and native `cryptg` loading.
-- `update` requires a clean Git checkout and performs only a fast-forward pull before rerunning the
-  dependency/service installer. ZIP installations are never silently overwritten.
+- `update [VERSION]` requires a clean Git checkout, accepts `main` or an exact semantic release
+  such as `v2.1.0`, and reruns the dependency/service installer. A version tag is checked out
+  exactly; ZIP installations are never silently overwritten.
+
+To return to an older release while preserving the protected environment and data directories:
+
+```bash
+aceunzip update v2.0.1
+```
 
 ## Installed paths
 

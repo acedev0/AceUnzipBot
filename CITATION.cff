@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: "Ace"
     email: "Acedevmc@gmail.com"
-version: 2.0.1
+version: 2.1.0
 date-released: 2026-08-22
 url: "https://github.com/acedev0/AceUnzipBot"
 repository-code: "https://github.com/acedev0/AceUnzipBot"

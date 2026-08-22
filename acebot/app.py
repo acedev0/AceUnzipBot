@@ -218,9 +218,11 @@ class AceBot:
                     "Ultra-fast archive extraction with live progress. Made by Ace • @Aceddev"
                 )
                 await self.bot_api.set_description(
-                    "Secure Telegram archive extraction with live progress, password support, "
-                    "video thumbnails, and private owner controls.\n\n"
-                    "Made by Ace\n@Aceddev • Acedevmc@gmail.com"
+                    "• Secure archive extraction\n"
+                    "• Live progress + FIFO bulk queue\n"
+                    "• Passwords + video thumbnails\n"
+                    "• Private owner controls\n\n"
+                    "Made by Ace • @Aceddev\nAcedevmc@gmail.com"
                 )
                 self.me.first_name = "Ace Extractor"
                 await self.db.set_setting("profile_initialized", "1")
@@ -271,9 +273,9 @@ class AceBot:
         for session in expired:
             with contextlib.suppress(RPCError):
                 await session.status_message.edit(
-                    "⌛ <b>BULK COLLECTION EXPIRED</b>\n\n"
-                    "The unsubmitted in-memory file list was discarded after one hour. "
-                    "Send <code>/bulk</code> to begin again.",
+                    "⌛ <b>BULK EXPIRED</b>\n\n"
+                    "• Unsubmitted list: discarded after 1 hour\n"
+                    "• Restart: <code>/bulk</code>",
                     buttons=None,
                 )
         return len(expired)
@@ -488,10 +490,11 @@ class AceBot:
     async def send_access_denied(self, event: events.NewMessage.Event) -> None:
         mode = await self.db.get_setting("access_mode", "owner")
         text = (
-            "🔒 <b>PRIVATE ACE INSTANCE</b>\n\n"
-            "This bot currently accepts only IDs selected by its owner. Tap below to send an access request."
+            "🔒 <b>PRIVATE BOT</b>\n\n"
+            "• Access: owner-selected IDs\n"
+            "• Use the button to request access"
             if mode == "private"
-            else "🔒 <b>OWNER-ONLY MODE</b>\n\nThis instance is currently closed."
+            else "🔒 <b>OWNER ONLY</b>\n\n• Access: closed"
         )
         buttons = (
             [[Button.inline("🔔 Request access", b"access:request")]] if mode == "private" else None
@@ -501,7 +504,7 @@ class AceBot:
     async def edit_access_denied(self, event: events.CallbackQuery.Event) -> None:
         await self.safe_edit(
             event,
-            "🔒 <b>ACCESS REQUIRED</b>\n\nAsk the owner to approve your numeric ID." + FOOTER,
+            "🔒 <b>ACCESS REQUIRED</b>\n\n• Ask the owner to approve your ID" + FOOTER,
             [[Button.inline("🔔 Request access", b"access:request")]],
         )
 
@@ -628,19 +631,20 @@ class AceBot:
         existing = self.bulk_sessions.get(user_id)
         if existing is not None and not existing.closed:
             await event.reply(
-                "📚 A bulk collection is already active with "
-                f"<b>{len(existing.entries)}</b> document(s). Keep sending files, use "
-                "<code>/donebulk</code>, or discard it with <code>/cancelbulk</code>."
+                "📚 <b>BULK ACTIVE</b>\n\n"
+                f"• Files: <b>{len(existing.entries)}</b>\n"
+                "• Finish: <code>/donebulk</code>\n"
+                "• Cancel: <code>/cancelbulk</code>"
             )
             return
         status = await self.reply_with_flood_wait(
             event,
-            "📚 <b>BULK COLLECTION STARTED</b>\n\n"
-            "Send or forward every archive/document you want checked. Nothing downloads or "
-            "extracts yet. When finished, send <code>/donebulk</code>.\n\n"
-            "The bot will list every supported archive in arrival order, flag unsupported or "
-            "oversized documents, ignore those rejected entries, and queue accepted archives "
-            "one by one. Use <code>/cancelbulk</code> to discard this collection."
+            "📚 <b>BULK STARTED</b>\n\n"
+            "• Send or forward all documents\n"
+            "• Finish: <code>/donebulk</code>\n"
+            "• Cancel: <code>/cancelbulk</code>\n"
+            "• Accepted archives run one by one\n"
+            "• Unsupported files are listed + ignored"
             + FOOTER,
             action="starting bulk collection",
         )
@@ -673,11 +677,10 @@ class AceBot:
                 return
             session.last_status_edit_at = now
             text = (
-                "📚 <b>BULK COLLECTION ACTIVE</b>\n\n"
-                f"📥 Documents received: <b>{count}</b>\n"
-                f"➕ Latest: <code>{esc(filename)}</code> • {human_size(size)}\n\n"
-                "Keep sending files. When the batch is complete, send "
-                "<code>/donebulk</code>."
+                "📚 <b>BULK ACTIVE</b>\n\n"
+                f"• Received: <b>{count}</b>\n"
+                f"• Latest: <code>{esc(filename)}</code> • {human_size(size)}\n"
+                "• Finish: <code>/donebulk</code>"
                 + FOOTER
             )
             try:
@@ -745,9 +748,9 @@ class AceBot:
             token = secrets.token_hex(4)
             prompt = await self.send_message_with_flood_wait(
                 int(event.chat_id),
-                "👑 <b>OWNER BULK DELIVERY ROUTER</b>\n\n"
-                f"Accepted archives: <b>{len(accepted)}</b>\n\n"
-                "Choose one delivery route for this entire FIFO batch, Sir."
+                "👑 <b>BULK ROUTE</b>\n\n"
+                f"• Archives: <b>{len(accepted)}</b>\n"
+                "• Choose one route for the batch, Sir"
                 + FOOTER,
                 buttons=owner_delivery_buttons(token),
                 status_message=summary_message,
@@ -771,10 +774,9 @@ class AceBot:
         await self.send_message_with_flood_wait(
             int(event.chat_id),
             "✅ <b>ALL BULK ARCHIVES QUEUED</b>\n\n"
-            f"📦 All <b>{queued}</b> archive{'s' if queued != 1 else ''} queued\n"
-            f"⚠️ Failed to queue: <b>{failed}</b>\n\n"
-            "They run one by one in FIFO order. A single live progress card appears only when "
-            "each archive starts."
+            f"• All <b>{queued}</b> archive{'s' if queued != 1 else ''} queued\n"
+            f"• Failed: <b>{failed}</b>\n"
+            "• Order: FIFO • one live card per active archive"
             + FOOTER,
             status_message=summary_message,
             action="confirming the bulk queue",
@@ -790,8 +792,8 @@ class AceBot:
             await event.reply("There is no active bulk collection to cancel.")
             return
         await event.reply(
-            f"✖ Bulk collection cancelled. <b>{count}</b> unsubmitted document(s) were "
-            "discarded from memory."
+            "✖ <b>BULK CANCELLED</b>\n\n"
+            f"• Discarded: <b>{count}</b> unsubmitted document(s)"
         )
 
     async def cancel_bulk_session(self, user_id: int) -> int | None:
@@ -805,8 +807,8 @@ class AceBot:
             count = len(session.entries)
         with contextlib.suppress(RPCError):
             await session.status_message.edit(
-                "✖ <b>BULK COLLECTION CANCELLED</b>\n\n"
-                f"Discarded <b>{count}</b> unsubmitted document(s).",
+                "✖ <b>BULK CANCELLED</b>\n\n"
+                f"• Discarded: <b>{count}</b> unsubmitted document(s)",
                 buttons=None,
             )
         return count
@@ -895,10 +897,10 @@ class AceBot:
         token = secrets.token_hex(4)
         prompt = await self.reply_with_flood_wait(
             event,
-            "👑 <b>OWNER DELIVERY ROUTER</b>\n\n"
-            f"Archive: <code>{esc(filename)}</code>\n\n"
-            "How should I deliver the extracted files, Sir? Mirror destinations are available "
-            "only for the owner and are learned automatically from chats this bot has seen."
+            "👑 <b>DELIVERY ROUTE</b>\n\n"
+            f"• Archive: <code>{esc(filename)}</code>\n"
+            "• Choose owner, mirror, or both\n"
+            "• Destinations: known accessible chats"
             + FOOTER,
             buttons=owner_delivery_buttons(token),
             action=f"opening the delivery menu for {filename}",
@@ -928,12 +930,11 @@ class AceBot:
             return
         if action == "back":
             title = (
-                "👑 <b>OWNER BULK DELIVERY ROUTER</b>\n\n"
-                f"Choose one route for all <b>{len(request.source_events)}</b> accepted archives, "
-                "Sir."
+                "👑 <b>BULK ROUTE</b>\n\n"
+                f"• Archives: <b>{len(request.source_events)}</b>\n"
+                "• Choose one route, Sir"
                 if request.is_bulk
-                else "👑 <b>OWNER DELIVERY ROUTER</b>\n\n"
-                "How should I deliver the extracted files, Sir?"
+                else "👑 <b>DELIVERY ROUTE</b>\n\n• Choose a route, Sir"
             )
             await self.safe_edit(
                 event,
@@ -1026,8 +1027,8 @@ class AceBot:
             else:
                 await self.safe_edit(
                     event,
-                    "🔎 <b>LOADING ACCESSIBLE CHATS</b>\n\n"
-                    "Building the menu from users and chats already observed by this bot…"
+                    "🔎 <b>LOADING CHATS</b>\n\n"
+                    "• Reading known accessible destinations…"
                     + FOOTER,
                     None,
                 )
@@ -1040,19 +1041,18 @@ class AceBot:
         page = min(max(0, page), pages - 1)
         prefix = f"❌ {esc(error)}\n\n" if error else ""
         availability = (
-            f"Found <b>{len(request.destinations)}</b> known destination(s). "
-            f"Page <b>{page + 1}/{pages}</b>."
+            f"• Found: <b>{len(request.destinations)}</b>\n"
+            f"• Page: <b>{page + 1}/{pages}</b>"
             if request.destinations
-            else "No eligible destination is known yet. Ask a user to open the bot, or add the "
-            "bot to a group/channel and send one message or command there, then tap refresh."
+            else "• No destination known\n"
+            "• Add the bot, send one chat message, then refresh"
         )
         await self.safe_edit(
             event,
             prefix
-            + "🪞 <b>CHOOSE MIRROR DESTINATION</b>\n\n"
+            + "🪞 <b>MIRROR DESTINATION</b>\n\n"
             + availability
-            + "\n\nKnown chats are revalidated when tapped; non-postable channels are removed. "
-            "IDs and usernames never need to be entered manually."
+            + "\n• Tap to revalidate • no manual IDs"
             + FOOTER,
             mirror_destination_buttons(
                 token=request.token,
@@ -1192,10 +1192,10 @@ class AceBot:
         count = len(request.source_events)
         await self.edit_message_with_flood_wait(
             request.prompt_message,
-            "⏳ <b>COMMITTING DELIVERY</b>\n\n"
-            f"Route: <b>{esc(labels)}</b>\n"
-            f"Archives: <b>{count}</b>\n\n"
-            "Creating FIFO queue entries…",
+            "⏳ <b>QUEUEING</b>\n\n"
+            f"• Route: <b>{esc(labels)}</b>\n"
+            f"• Archives: <b>{count}</b>\n"
+            "• Creating FIFO entries…",
             buttons=None,
             action="committing the owner’s delivery route",
         )
@@ -1208,20 +1208,19 @@ class AceBot:
         if request.is_bulk:
             confirmation = (
                 "✅ <b>ALL BULK ARCHIVES QUEUED</b>\n\n"
-                f"📡 Route: <b>{esc(labels)}</b>\n"
-                f"📦 All <b>{queued}</b> archive{'s' if queued != 1 else ''} queued\n"
-                f"⚠️ Failed to queue: <b>{failed}</b>\n\n"
-                "They run one by one in FIFO order. A single live progress card appears only "
-                "when each archive starts."
+                f"• Route: <b>{esc(labels)}</b>\n"
+                f"• All <b>{queued}</b> archive{'s' if queued != 1 else ''} queued\n"
+                f"• Failed: <b>{failed}</b>\n"
+                "• Order: FIFO • one live card when active"
                 + FOOTER
             )
         else:
             confirmation = (
-                "✅ <b>DELIVERY COMMITTED</b>\n\n"
-                f"Route: <b>{esc(labels)}</b>\n"
-                f"Queued: <b>{queued}</b>\n"
-                f"Failed to queue: <b>{failed}</b>\n\n"
-                "Archives will extract one by one in FIFO order."
+                "✅ <b>QUEUED</b>\n\n"
+                f"• Route: <b>{esc(labels)}</b>\n"
+                f"• Queued: <b>{queued}</b>\n"
+                f"• Failed: <b>{failed}</b>\n"
+                "• Order: FIFO"
                 + FOOTER
             )
         await self.edit_message_with_flood_wait(
@@ -1249,25 +1248,23 @@ class AceBot:
         elif data == "home:upload":
             await self.safe_edit(
                 event,
-                "📦 <b>READY FOR YOUR ARCHIVE</b>\n\n"
-                "Attach the file with Telegram’s paperclip and choose <b>File / Document</b>. "
-                "The task begins after it arrives; the owner first receives a private delivery "
-                "choice for regular or mirror output.\n\n"
-                "For encrypted archives, place <code>password: your-password</code> in the "
-                "caption—the password is used only in memory." + FOOTER,
+                "📦 <b>SEND ARCHIVE</b>\n\n"
+                "• Telegram: paperclip → <b>File</b>\n"
+                "• Password: caption <code>password: value</code>\n"
+                "• Owner: choose normal or mirror route\n"
+                "• Processing starts after delivery selection" + FOOTER,
                 back_home_button(),
             )
         elif data == "home:bulk":
             await self.safe_edit(
                 event,
-                "📚 <b>BULK FIFO MODE</b>\n\n"
-                "1. Send <code>/bulk</code>.\n"
-                "2. Forward or upload every document you want checked.\n"
-                "3. Send <code>/donebulk</code>.\n"
-                "4. Review the complete supported/ignored list. Accepted archives enter the "
-                "FIFO and extract one by one.\n\n"
-                "The owner chooses one normal or mirror delivery route for the whole accepted "
-                "batch. Use <code>/cancelbulk</code> before finishing to discard the collection."
+                "📚 <b>BULK FIFO</b>\n\n"
+                "• Start: <code>/bulk</code>\n"
+                "• Send: all documents\n"
+                "• Finish: <code>/donebulk</code>\n"
+                "• Cancel: <code>/cancelbulk</code>\n"
+                "• Result: supported/ignored list + FIFO queue\n"
+                "• Owner: one route for the full batch"
                 + FOOTER,
                 back_home_button(),
             )
@@ -1301,13 +1298,11 @@ class AceBot:
         settings = await self.db.get_user_settings(user_id)
         mode = settings["upload_mode"]
         text = (
-            "⚙️ <b>MY UPLOAD SETTINGS</b>\n\n"
-            f"📤 Output mode: <b>{esc(mode.title())}</b>\n"
-            f"🖼 Video thumbnail: <b>{'Custom' if settings['thumbnail_path'] else 'Automatic'}</b>\n"
-            f"✍️ Custom caption: <b>{'Yes' if settings['caption_template'] else 'Default'}</b>\n\n"
-            "<i>Auto sends verified Telegram-compatible photos and videos as media. Every "
-            "other non-empty file is sent as a document. Thumbnails are used only for "
-            "verified video media.</i>"
+            "⚙️ <b>UPLOAD SETTINGS</b>\n\n"
+            f"• Mode: <b>{esc(mode.title())}</b>\n"
+            f"• Video thumb: <b>{'Custom' if settings['thumbnail_path'] else 'Automatic'}</b>\n"
+            f"• Caption: <b>{'Custom' if settings['caption_template'] else 'Default'}</b>\n"
+            "• Auto: verified media • everything else: document"
             + FOOTER
         )
         buttons = user_settings_buttons(
@@ -1357,13 +1352,12 @@ class AceBot:
         mode = await self.db.get_setting("access_mode", "owner")
         log_channel = await self.configured_log_channel()
         text = (
-            "👑 <b>ACE OWNER CONTROL CENTRE</b>\n\n"
-            f"🤖 @{esc(self.me.username or 'unknown')}  •  v{__version__}\n"
-            f"🔐 Access: <b>{esc((mode or 'owner').title())}</b>\n"
-            f"📡 Log channel: <code>{log_channel or 'not configured'}</code>\n"
-            f"⚡ Running / queued: <b>{len(self.active_jobs)} / {len(self.job_queue)}</b>\n\n"
-            "Change access, visuals, Telegram profile text, limits, logging, and broadcasts "
-            "without editing the VPS configuration." + FOOTER
+            "👑 <b>OWNER MENU</b>\n\n"
+            f"• Bot: @{esc(self.me.username or 'unknown')} • v{__version__}\n"
+            f"• Access: <b>{esc((mode or 'owner').title())}</b>\n"
+            f"• Logs: <code>{log_channel or 'off'}</code>\n"
+            f"• Running / queued: <b>{len(self.active_jobs)} / {len(self.job_queue)}</b>"
+            + FOOTER
         )
         if edit:
             await self.safe_edit(event, text, admin_home_buttons())
@@ -1390,9 +1384,9 @@ class AceBot:
         elif data == "admin:appearance":
             await self.safe_edit(
                 event,
-                "🎨 <b>APPEARANCE & BOT PROFILE</b>\n\n"
-                "Update the visible Telegram bot name, bio, full description, welcome/help copy, "
-                "start banner, and default video thumbnail." + FOOTER,
+                "🎨 <b>APPEARANCE</b>\n\n"
+                "• Text: name • bio • description • welcome • help\n"
+                "• Images: banner • profile • video thumbnail" + FOOTER,
                 admin_appearance_buttons(),
             )
         elif data.startswith("admin:appearance:"):
@@ -1462,11 +1456,10 @@ class AceBot:
         users = await self.db.allowed_users()
         text = (
             "🔐 <b>ACCESS CONTROL</b>\n\n"
-            f"Mode: <b>{esc(mode.title())}</b>\n"
-            f"Maintenance: <b>{'ON' if maintenance else 'OFF'}</b>\n"
-            f"Approved/admin IDs: <b>{len(users)}</b>\n\n"
-            "Owner-only is the safe default. Private mode permits the owner, bot admins, and "
-            "explicitly approved IDs." + FOOTER
+            f"• Mode: <b>{esc(mode.title())}</b>\n"
+            f"• Maintenance: <b>{'ON' if maintenance else 'OFF'}</b>\n"
+            f"• Approved/admin IDs: <b>{len(users)}</b>\n"
+            "• Private: owner + admins + approved IDs" + FOOTER
         )
         await self.safe_edit(event, text, admin_access_buttons(mode, maintenance))
 
@@ -1526,13 +1519,12 @@ class AceBot:
         if channel is not None:
             status = "ready" if active_channel is not None else "unavailable this run"
         text = (
-            "📡 <b>PRIVATE LOGGING</b>\n\n"
-            f"Channel: <code>{channel or 'not configured'}</code>\n"
-            f"Status: <b>{esc(status.upper())}</b>\n"
-            f"Operational events: <b>{'ON' if events_enabled else 'OFF'}</b>\n"
-            f"Original archive copies: <b>{'ON' if archives_enabled else 'OFF'}</b>\n\n"
-            "Archive copies exclude the user’s caption so passwords are never copied. Users see "
-            "the current logging policy in /start and /privacy." + FOOTER
+            "📡 <b>LOGGING</b>\n\n"
+            f"• Channel: <code>{channel or 'off'}</code>\n"
+            f"• Status: <b>{esc(status.upper())}</b>\n"
+            f"• Events: <b>{'ON' if events_enabled else 'OFF'}</b>\n"
+            f"• Archive copies: <b>{'ON' if archives_enabled else 'OFF'}</b>\n"
+            "• Captions/passwords: never copied" + FOOTER
         )
         await self.safe_edit(event, text, admin_logs_buttons(events_enabled, archives_enabled))
 
@@ -1574,16 +1566,15 @@ class AceBot:
     async def show_admin_limits(self, event: events.CallbackQuery.Event) -> None:
         settings = await self.db.settings()
         text = (
-            "⚙️ <b>RESOURCE & SAFETY LIMITS</b>\n\n"
-            f"📥 Archive: <b>{esc(settings['max_archive_mb'])} MB</b>\n"
-            f"📤 Extracted: <b>{esc(settings['max_extracted_mb'])} MB</b>\n"
-            f"📚 Files/task: <b>{esc(settings['max_files'])}</b>\n"
-            f"🧨 Expansion ratio: <b>{esc(settings['max_ratio'])}×</b>\n"
-            f"⚡ Concurrent tasks: <b>{esc(settings['max_concurrent_jobs'])}</b>\n"
-            f"⏱ Task timeout: <b>{human_duration(int(settings['job_timeout_seconds']))}</b>\n"
-            f"🧹 Stale cleanup: <b>{esc(settings['cleanup_minutes'])} min</b>\n\n"
-            "<i>Concurrency parallelizes different users. Every individual user's FIFO "
-            "queue always remains one-at-a-time.</i>"
+            "⚙️ <b>LIMITS</b>\n\n"
+            f"• Archive: <b>{esc(settings['max_archive_mb'])} MB</b>\n"
+            f"• Extracted: <b>{esc(settings['max_extracted_mb'])} MB</b>\n"
+            f"• Files/task: <b>{esc(settings['max_files'])}</b>\n"
+            f"• Expansion: <b>{esc(settings['max_ratio'])}×</b>\n"
+            f"• Concurrent: <b>{esc(settings['max_concurrent_jobs'])}</b>\n"
+            f"• Timeout: <b>{human_duration(int(settings['job_timeout_seconds']))}</b>\n"
+            f"• Cleanup: <b>{esc(settings['cleanup_minutes'])} min</b>\n"
+            "• Per-user order: always FIFO"
             + FOOTER
         )
         await self.safe_edit(event, text, admin_limits_buttons())
@@ -1620,7 +1611,7 @@ class AceBot:
         message = await self.client.send_message(
             user_id,
             prompt
-            + "\n\nSend <code>/cancel</code> to abandon the active file task; menu inputs expire when replaced.",
+            + "\n\n• Cancel: <code>/cancel</code> • New prompts replace old ones",
             buttons=Button.force_reply(single_use=True, selective=True),
         )
         self.pending_inputs[user_id] = PendingInput(action, message.id)
@@ -2873,8 +2864,8 @@ class AceBot:
                     "⏸ <b>TELEGRAM FLOODWAIT</b>\n\n"
                     f"<code>{progress_bar(wait_seconds - remaining, max(wait_seconds, 1))}</code>  "
                     f"<b>Retrying in {human_duration(remaining)}</b>\n"
-                    f"<blockquote>{esc(action[:96])}</blockquote>\n"
-                    "<i>Queue position is safe. Retrying automatically.</i>"
+                    f"• Action: {esc(action[:72])}\n"
+                    "• Queue: saved • retry: automatic"
                     + FOOTER
                 )
                 try:

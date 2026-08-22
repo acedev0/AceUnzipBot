@@ -2,8 +2,23 @@
 set -Eeuo pipefail
 
 repo_url="${ACE_REPO_URL:-https://github.com/acedev0/AceUnzipBot.git}"
-repo_branch="${ACE_BRANCH:-main}"
+repo_ref="${ACE_VERSION:-${ACE_REF:-${ACE_BRANCH:-main}}}"
 install_dir="${ACE_INSTALL_DIR:-/opt/aceunzipbot}"
+
+case "${1:-}" in
+  ""|--bootstrap|--update)
+    ;;
+  *)
+    repo_ref="$1"
+    ;;
+esac
+if [[ "$repo_ref" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  repo_ref="v$repo_ref"
+fi
+if [[ "$repo_ref" != "main" && ! "$repo_ref" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Version must be main or a release such as v2.1.0." >&2
+  exit 2
+fi
 
 as_root=()
 if [[ $(id -u) -ne 0 ]]; then
@@ -37,14 +52,25 @@ if [[ ! -f "$script_dir/requirements.txt" || ! -d "$script_dir/acebot" ]]; then
       echo "Update stopped because $install_dir contains local changes." >&2
       exit 2
     fi
-    "${as_root[@]}" git -C "$install_dir" fetch --prune origin "$repo_branch"
-    "${as_root[@]}" git -C "$install_dir" checkout "$repo_branch"
-    "${as_root[@]}" git -C "$install_dir" pull --ff-only origin "$repo_branch"
+    if [[ "$repo_ref" == "main" ]]; then
+      "${as_root[@]}" git -C "$install_dir" fetch --prune --depth 1 origin \
+        refs/heads/main:refs/remotes/origin/main
+      if "${as_root[@]}" git -C "$install_dir" show-ref --verify --quiet refs/heads/main; then
+        "${as_root[@]}" git -C "$install_dir" checkout main
+        "${as_root[@]}" git -C "$install_dir" merge --ff-only refs/remotes/origin/main
+      else
+        "${as_root[@]}" git -C "$install_dir" checkout -b main --track origin/main
+      fi
+    else
+      "${as_root[@]}" git -C "$install_dir" fetch --force --depth 1 origin \
+        "refs/tags/$repo_ref:refs/tags/$repo_ref"
+      "${as_root[@]}" git -C "$install_dir" checkout --detach "refs/tags/$repo_ref"
+    fi
   else
     "${as_root[@]}" install -d -m 0755 "$(dirname "$install_dir")"
-    "${as_root[@]}" git clone --depth 1 --branch "$repo_branch" "$repo_url" "$install_dir"
+    "${as_root[@]}" git clone --depth 1 --branch "$repo_ref" "$repo_url" "$install_dir"
   fi
-  exec "$install_dir/install.sh" --bootstrap
+  exec env ACE_VERSION="$repo_ref" "$install_dir/install.sh" --bootstrap
 fi
 
 project_dir="$script_dir"
