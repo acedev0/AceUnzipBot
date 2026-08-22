@@ -2,7 +2,7 @@ Telethon==1.44.0
 cryptg==0.5.2; python_version < "3.11"
 cryptg==0.6.0; python_version >= "3.11"
 uvloop==0.22.1
-Pillow==11.3.0
+Pillow==12.3.0
 psutil==7.0.0
 python-dotenv==1.1.1
 hachoir==3.3.0
