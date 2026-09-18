@@ -5,4 +5,4 @@ uvloop==0.22.1
 Pillow==11.3.0
 psutil==7.0.0
 python-dotenv==1.1.1
-hachoir==3.3.0
+hachoir==3.4.0
