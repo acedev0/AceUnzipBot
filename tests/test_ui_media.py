@@ -21,6 +21,7 @@ from acebot.ui import (
     admin_home_buttons,
     admin_limits_buttons,
     admin_logs_buttons,
+    button_data,
     home_buttons,
     mirror_destination_buttons,
     owner_delivery_buttons,
@@ -91,9 +92,7 @@ class UiTests(unittest.TestCase):
         for keyboard in keyboards:
             for row in keyboard:
                 for button in row:
-                    data = getattr(button, "data", None)
-                    if data is not None:
-                        self.assertLessEqual(len(data), 64)
+                    self.assertLessEqual(len(button_data(button)), 64)
 
     def test_mirror_destination_picker_is_paginated_without_manual_entry(self) -> None:
         destinations = [
@@ -101,9 +100,7 @@ class UiTests(unittest.TestCase):
         ]
         keyboard = mirror_destination_buttons("1234abcd", "mirror", destinations, page=1)
         labels = [str(getattr(button, "text", "")) for row in keyboard for button in row]
-        payloads = [
-            getattr(button, "data", b"") for row in keyboard for button in row
-        ]
+        payloads = [button_data(button) for row in keyboard for button in row]
         self.assertTrue(any("2/3" in label for label in labels))
         self.assertFalse(any(b"enter" in payload.lower() for payload in payloads))
         target_payloads = [payload for payload in payloads if b"mirror:target:" in payload]

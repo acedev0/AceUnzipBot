@@ -27,6 +27,19 @@ def esc(value: Any) -> str:
     return html.escape(str(value), quote=True)
 
 
+def button_data(button: Button) -> bytes:
+    """Return the callback payload stored in a Telethon inline button.
+
+    Telethon 1.44 and newer keep the payload on ``button.type.data``;
+    earlier releases exposed it directly as ``button.data``. Support both
+    so callers and tests do not depend on the installed Telethon version.
+    """
+    payload = getattr(button, "data", None)
+    if payload is None:
+        payload = getattr(getattr(button, "type", None), "data", b"")
+    return bytes(payload)
+
+
 def human_size(size: int | float) -> str:
     value = float(max(0, size))
     units = ("B", "KB", "MB", "GB", "TB")
